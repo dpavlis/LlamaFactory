@@ -2336,6 +2336,40 @@ LOCALES = {
             "info": "トレーニングパラメータを保存する設定ファイルのパス。",
         },
     },
+    "loss_popup_btn": {
+        "en": {
+            "value": "Expand",
+        },
+        "ru": {
+            "value": "Развернуть",
+        },
+        "zh": {
+            "value": "放大",
+        },
+        "ko": {
+            "value": "확대",
+        },
+        "ja": {
+            "value": "拡大",
+        },
+    },
+    "loss_popup_close": {
+        "en": {
+            "value": "Close",
+        },
+        "ru": {
+            "value": "Закрыть",
+        },
+        "zh": {
+            "value": "关闭",
+        },
+        "ko": {
+            "value": "닫기",
+        },
+        "ja": {
+            "value": "閉じる",
+        },
+    },
     "device_count": {
         "en": {
             "label": "Device count",

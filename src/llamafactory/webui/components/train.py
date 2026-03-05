@@ -422,6 +422,7 @@ def create_train_tab(engine: "Engine") -> dict[str, "Component"]:
 
         with gr.Column(scale=1):
             loss_viewer = gr.Plot()
+            loss_popup_btn = gr.Button()
 
             with gr.Column(visible=False, elem_classes="modal-box") as loss_popup:
                 with gr.Row():
@@ -448,6 +449,7 @@ def create_train_tab(engine: "Engine") -> dict[str, "Component"]:
             progress_bar=progress_bar,
             output_box=output_box,
             loss_viewer=loss_viewer,
+            loss_popup_btn=loss_popup_btn,
             loss_popup=loss_popup,
             loss_popup_close=loss_popup_close,
             loss_popup_plot=loss_popup_plot,
@@ -488,7 +490,7 @@ def create_train_tab(engine: "Engine") -> dict[str, "Component"]:
         render_config_preview, [config_path], [config_preview], queue=False
     )
     config_path.input(render_config_preview, [config_path], [config_preview], queue=False)
-    loss_viewer.select(lambda: gr.Column(visible=True), outputs=[loss_popup], queue=False)
+    loss_popup_btn.click(lambda: gr.Column(visible=True), outputs=[loss_popup], queue=False)
     loss_popup_close.click(lambda: gr.Column(visible=False), outputs=[loss_popup], queue=False)
 
     return elem_dict
