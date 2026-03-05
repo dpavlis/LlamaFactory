@@ -51,13 +51,15 @@ CSS = r"""
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%); /* center horizontally */
-  max-width: 1000px;
-  max-height: 750px;
+  width: min(1200px, 96vw);
+  height: min(820px, 92vh);
+  max-width: 1200px;
+  max-height: 820px;
   overflow-y: auto;
   background-color: var(--input-background-fill);
   flex-wrap: nowrap !important;
   border: 2px solid black !important;
-  z-index: 1000;
+  z-index: 10000;
   padding: 10px;
 }
 
@@ -89,7 +91,7 @@ CSS = r"""
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
-  z-index: 9999;
+  z-index: 5000;
   min-width: 360px;
   max-width: 720px;
   max-height: 480px;
