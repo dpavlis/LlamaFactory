@@ -396,7 +396,8 @@ def create_train_tab(engine: "Engine") -> dict[str, "Component"]:
         arg_save_btn = gr.Button()
         arg_load_btn = gr.Button()
         start_btn = gr.Button(variant="primary")
-        stop_btn = gr.Button(variant="stop")
+        stop_btn = gr.Button()
+        abort_btn = gr.Button(variant="stop")
 
     with gr.Row():
         with gr.Column(scale=3):
@@ -436,6 +437,7 @@ def create_train_tab(engine: "Engine") -> dict[str, "Component"]:
             arg_load_btn=arg_load_btn,
             start_btn=start_btn,
             stop_btn=stop_btn,
+            abort_btn=abort_btn,
             current_time=current_time,
             output_dir=output_dir,
             config_path=config_path,
@@ -455,7 +457,8 @@ def create_train_tab(engine: "Engine") -> dict[str, "Component"]:
 
     cmd_preview_btn.click(engine.runner.preview_train, input_elems, output_elems, concurrency_limit=None)
     start_btn.click(engine.runner.run_train, input_elems, output_elems)
-    stop_btn.click(engine.runner.set_abort)
+    stop_btn.click(engine.runner.stop_train)
+    abort_btn.click(engine.runner.set_abort)
     resume_btn.change(engine.runner.monitor, outputs=output_elems, concurrency_limit=None)
 
     lang = engine.manager.get_elem_by_id("top.lang")

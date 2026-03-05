@@ -27,15 +27,16 @@ from ..extras.packages import is_gradio_available
 from .common import (
     DEFAULT_CACHE_DIR,
     DEFAULT_CONFIG_DIR,
-    abort_process,
     calculate_pixels,
     gen_cmd,
     get_save_dir,
+    kill_process,
     load_args,
     load_config,
     load_eval_results,
     save_args,
     save_cmd,
+    stop_process,
 )
 from .control import get_trainer_info
 from .locales import ALERTS, LOCALES
@@ -64,12 +65,19 @@ class Runner:
         self.running_data: dict[Component, Any] = None
         """ State """
         self.aborted = False
+        self.stopping = False
         self.running = False
+
+    def stop_train(self) -> None:
+        self.stopping = True
+        if self.trainer is not None:
+            stop_process(self.trainer.pid)
 
     def set_abort(self) -> None:
         self.aborted = True
+        self.stopping = False
         if self.trainer is not None:
-            abort_process(self.trainer.pid)
+            kill_process(self.trainer.pid)
 
     def _initialize(self, data: dict["Component", Any], do_train: bool, from_preview: bool) -> str:
         r"""Validate the configuration."""
@@ -115,10 +123,14 @@ class Runner:
 
     def _finalize(self, lang: str, finish_info: str) -> None:
         r"""Clean the cached memory and resets the runner."""
-        finish_info = ALERTS["info_aborted"][lang] if self.aborted else finish_info
+        if self.aborted:
+            finish_info = ALERTS["info_aborted"][lang]
+        elif self.stopping:
+            finish_info = ALERTS["info_stopped"][lang]
         gr.Info(finish_info)
         self.trainer = None
         self.aborted = False
+        self.stopping = False
         self.running = False
         self.running_data = None
         torch_gc()
@@ -414,6 +426,7 @@ class Runner:
         output_box = self.manager.get_elem_by_id("{}.output_box".format("train" if self.do_train else "eval"))
         progress_bar = self.manager.get_elem_by_id("{}.progress_bar".format("train" if self.do_train else "eval"))
         loss_viewer = self.manager.get_elem_by_id("train.loss_viewer") if self.do_train else None
+        loss_popup_plot = self.manager.get_elem_by_id("train.loss_popup_plot") if self.do_train else None
         swanlab_link = self.manager.get_elem_by_id("train.swanlab_link") if self.do_train else None
 
         running_log = ""
@@ -424,6 +437,11 @@ class Runner:
                     output_box: ALERTS["info_aborting"][lang],
                     progress_bar: gr.Slider(visible=False),
                 }
+            elif self.stopping:
+                yield {
+                    output_box: ALERTS["info_stopping"][lang],
+                    progress_bar: gr.Slider(visible=False),
+                }
             else:
                 running_log, running_progress, running_info = get_trainer_info(lang, output_path, self.do_train)
                 return_dict = {
@@ -432,6 +450,9 @@ class Runner:
                 }
                 if "loss_viewer" in running_info:
                     return_dict[loss_viewer] = running_info["loss_viewer"]
+
+                if "loss_popup_plot" in running_info and loss_popup_plot is not None:
+                    return_dict[loss_popup_plot] = running_info["loss_popup_plot"]
 
                 if "swanlab_link" in running_info:
                     return_dict[swanlab_link] = running_info["swanlab_link"]

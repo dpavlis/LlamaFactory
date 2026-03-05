@@ -77,6 +77,32 @@ def abort_process(pid: int) -> None:
         pass
 
 
+def stop_process(pid: int) -> None:
+    r"""Stop the processes gracefully in a bottom-up way."""
+    try:
+        children = Process(pid).children()
+        if children:
+            for child in children:
+                stop_process(child.pid)
+
+        os.kill(pid, signal.SIGINT)
+    except Exception:
+        pass
+
+
+def kill_process(pid: int) -> None:
+    r"""Kill the processes immediately in a bottom-up way."""
+    try:
+        children = Process(pid).children()
+        if children:
+            for child in children:
+                kill_process(child.pid)
+
+        os.kill(pid, signal.SIGKILL)
+    except Exception:
+        pass
+
+
 def get_save_dir(*paths: str) -> os.PathLike:
     r"""Get the path to saved model checkpoints."""
     if os.path.sep in paths[-1]:
