@@ -64,4 +64,28 @@ CSS = r"""
 .dark .modal-box {
   border: 2px solid white !important;
 }
+
+.config-preview-container {
+  position: relative;
+}
+
+.config-preview {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 50;
+  min-width: 320px;
+  max-width: 640px;
+  max-height: 480px;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid #a6a6a6;
+  background: var(--input-background-fill);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.config-preview-container:hover .config-preview {
+  display: block;
+}
 """

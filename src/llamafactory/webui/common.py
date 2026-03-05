@@ -41,6 +41,27 @@ DEFAULT_CONFIG_DIR = "llamaboard_config"
 DEFAULT_DATA_DIR = "data"
 DEFAULT_SAVE_DIR = "saves"
 USER_CONFIG = "user_config.yaml"
+DEFAULT_CONFIG_PREVIEW_GROUPS = [
+    ("Top", ["top.model_name"]),
+    (
+        "Train",
+        [
+            "train.training_stage",
+            "train.batch_size",
+            "train.gradient_accumulation_steps",
+            "train.learning_rate",
+            "train.cutoff_len",
+            "train.logging_steps",
+            "train.save_steps",
+            "train.lora_rank",
+            "train.lora_alpha",
+            "train.lora_dropout",
+            "train.galore_rank",
+            "train.apollo_rank",
+            "train.apollo_scale",
+        ],
+    ),
+]
 
 
 def abort_process(pid: int) -> None:
@@ -77,7 +98,39 @@ def load_config() -> dict[str, str | dict[str, Any]]:
         with open(_get_config_path(), encoding="utf-8") as f:
             return safe_load(f)
     except Exception:
-        return {"lang": None, "hub_name": None, "last_model": None, "path_dict": {}, "cache_dir": None}
+        return {
+            "lang": None,
+            "hub_name": None,
+            "last_model": None,
+            "path_dict": {},
+            "cache_dir": None,
+            "preview_groups": None,
+            "preview_show_other": True,
+        }
+
+
+def get_config_preview_groups() -> list[tuple[str, list[str]]]:
+    r"""Get config preview groups from user config or fallback to defaults."""
+    user_config = load_config()
+    preview_groups = user_config.get("preview_groups")
+    if isinstance(preview_groups, dict):
+        groups = []
+        for group_name, keys in preview_groups.items():
+            if isinstance(group_name, str) and isinstance(keys, list):
+                group_keys = [str(key) for key in keys if isinstance(key, str)]
+                if group_keys:
+                    groups.append((group_name, group_keys))
+
+        if groups:
+            return groups
+
+    return DEFAULT_CONFIG_PREVIEW_GROUPS
+
+
+def get_config_preview_show_other() -> bool:
+    r"""Return whether to show ungrouped config keys in the preview."""
+    user_config = load_config()
+    return bool(user_config.get("preview_show_other", True))
 
 
 def save_config(

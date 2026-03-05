@@ -30,7 +30,17 @@ from ..extras.constants import (
 from ..extras.packages import is_gradio_available, is_matplotlib_available
 from ..extras.ploting import gen_loss_plot
 from ..model import QuantizationMethod
-from .common import DEFAULT_CONFIG_DIR, DEFAULT_DATA_DIR, get_model_path, get_save_dir, get_template, load_dataset_info
+from .common import (
+    DEFAULT_CONFIG_DIR,
+    DEFAULT_DATA_DIR,
+    get_config_preview_groups,
+    get_config_preview_show_other,
+    get_model_path,
+    get_save_dir,
+    get_template,
+    load_args,
+    load_dataset_info,
+)
 from .locales import ALERTS
 
 
@@ -191,7 +201,58 @@ def list_config_paths(current_time: str) -> "gr.Dropdown":
             if file_name.endswith(".yaml") and file_name not in config_files:
                 config_files.append(file_name)
 
+    if len(config_files) > 1:
+        config_files = config_files[:1] + sorted(config_files[1:], reverse=True)
+
     return gr.Dropdown(choices=config_files)
+
+
+def _format_config_value(value: Any) -> str:
+    if isinstance(value, (dict, list)):
+        return json.dumps(value, sort_keys=True)
+
+    return str(value)
+
+
+def render_config_preview(config_path: str) -> str:
+    r"""Render a markdown preview for the selected config file."""
+    if not config_path:
+        return ""
+
+    config_file = config_path
+    if not os.path.isabs(config_file):
+        config_file = os.path.join(DEFAULT_CONFIG_DIR, config_file)
+
+    config_dict = load_args(config_file)
+    if not config_dict:
+        return "Config preview unavailable."
+
+    groups = get_config_preview_groups()
+    show_other = get_config_preview_show_other()
+    used_keys = set()
+    lines = []
+
+    for group_name, keys in groups:
+        group_lines = []
+        for key in keys:
+            if key in config_dict:
+                used_keys.add(key)
+                group_lines.append(f"- {key}: {_format_config_value(config_dict[key])}")
+
+        if group_lines:
+            lines.append(f"**{group_name}**")
+            lines.extend(group_lines)
+            lines.append("")
+
+    if show_other:
+        other_keys = sorted(key for key in config_dict.keys() if key not in used_keys)
+        if other_keys:
+            lines.append("**Other**")
+            for key in other_keys:
+                lines.append(f"- {key}: {_format_config_value(config_dict[key])}")
+            lines.append("")
+
+    return "\n".join(lines).strip()
 
 
 def list_datasets(dataset_dir: str = None, training_stage: str = list(TRAINING_STAGES.keys())[0]) -> "gr.Dropdown":
@@ -220,5 +281,8 @@ def list_output_dirs(model_name: str | None, finetuning_type: str, current_time:
                 output_dir = os.path.join(save_dir, folder)
                 if os.path.isdir(output_dir) and get_last_checkpoint(output_dir) is not None:
                     output_dirs.append(folder)
+
+    if len(output_dirs) > 1:
+        output_dirs = output_dirs[:1] + sorted(output_dirs[1:], reverse=True)
 
     return gr.Dropdown(choices=output_dirs)

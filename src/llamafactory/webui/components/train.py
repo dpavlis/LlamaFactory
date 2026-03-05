@@ -20,7 +20,14 @@ from ...extras.constants import TRAINING_STAGES
 from ...extras.misc import get_device_count
 from ...extras.packages import is_gradio_available
 from ..common import DEFAULT_DATA_DIR
-from ..control import change_stage, list_checkpoints, list_config_paths, list_datasets, list_output_dirs
+from ..control import (
+    change_stage,
+    list_checkpoints,
+    list_config_paths,
+    list_datasets,
+    list_output_dirs,
+    render_config_preview,
+)
 from .data import create_preview_box
 
 
@@ -396,7 +403,9 @@ def create_train_tab(engine: "Engine") -> dict[str, "Component"]:
             with gr.Row():
                 current_time = gr.Textbox(visible=False, interactive=False)
                 output_dir = gr.Dropdown(allow_custom_value=True)
-                config_path = gr.Dropdown(allow_custom_value=True)
+                with gr.Column(elem_classes="config-preview-container"):
+                    config_path = gr.Dropdown(allow_custom_value=True)
+                    config_preview = gr.Markdown(elem_classes="config-preview")
 
             with gr.Row():
                 device_count = gr.Textbox(value=str(get_device_count() or 1), interactive=False)
@@ -463,6 +472,8 @@ def create_train_tab(engine: "Engine") -> dict[str, "Component"]:
         list(input_elems) + [output_box],
         concurrency_limit=None,
     )
-    config_path.change(list_config_paths, [current_time], [config_path], queue=False)
+    config_path.change(list_config_paths, [current_time], [config_path], queue=False).then(
+        render_config_preview, [config_path], [config_preview], queue=False
+    )
 
     return elem_dict
