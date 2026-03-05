@@ -46,20 +46,50 @@ def smooth(scalars: list[float]) -> list[float]:
     return smoothed
 
 
+def _get_step(log: dict[str, Any]) -> int | None:
+    if "current_steps" in log:
+        return log["current_steps"]
+
+    if "step" in log:
+        return log["step"]
+
+    return None
+
+
+def _collect_series(trainer_log: list[dict[str, Any]], key: str) -> tuple[list[int], list[float]]:
+    steps, values = [], []
+    for log in trainer_log:
+        if key in log:
+            step = _get_step(log)
+            if step is None:
+                continue
+
+            steps.append(step)
+            values.append(log[key])
+
+    return steps, values
+
+
 def gen_loss_plot(trainer_log: list[dict[str, Any]]) -> "matplotlib.figure.Figure":
     r"""Plot loss curves in LlamaBoard."""
     plt.close("all")
     plt.switch_backend("agg")
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    steps, losses = [], []
-    for log in trainer_log:
-        if log.get("loss", None):
-            steps.append(log["current_steps"])
-            losses.append(log["loss"])
 
-    ax.plot(steps, losses, color="#1f77b4", alpha=0.4, label="original")
-    ax.plot(steps, smooth(losses), color="#1f77b4", label="smoothed")
+    train_steps, train_losses = _collect_series(trainer_log, "loss")
+    eval_steps, eval_losses = _collect_series(trainer_log, "eval_loss")
+    if not eval_losses:
+        eval_steps, eval_losses = _collect_series(trainer_log, "eval/loss")
+
+    if train_losses:
+        ax.plot(train_steps, train_losses, color="#1f77b4", alpha=0.35, label="train (raw)")
+        ax.plot(train_steps, smooth(train_losses), color="#1f77b4", label="train (smoothed)")
+
+    if eval_losses:
+        ax.plot(eval_steps, eval_losses, color="#ff7f0e", alpha=0.35, label="eval (raw)")
+        ax.plot(eval_steps, smooth(eval_losses), color="#ff7f0e", label="eval (smoothed)")
+
     ax.legend()
     ax.set_xlabel("step")
     ax.set_ylabel("loss")

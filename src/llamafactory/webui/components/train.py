@@ -422,6 +422,12 @@ def create_train_tab(engine: "Engine") -> dict[str, "Component"]:
         with gr.Column(scale=1):
             loss_viewer = gr.Plot()
 
+            with gr.Column(visible=False, elem_classes="modal-box") as loss_popup:
+                with gr.Row():
+                    loss_popup_close = gr.Button()
+
+                loss_popup_plot = gr.Plot()
+
     input_elems.update({output_dir, config_path, ds_stage, ds_offload})
     elem_dict.update(
         dict(
@@ -440,9 +446,12 @@ def create_train_tab(engine: "Engine") -> dict[str, "Component"]:
             progress_bar=progress_bar,
             output_box=output_box,
             loss_viewer=loss_viewer,
+            loss_popup=loss_popup,
+            loss_popup_close=loss_popup_close,
+            loss_popup_plot=loss_popup_plot,
         )
     )
-    output_elems = [output_box, progress_bar, loss_viewer, swanlab_link]
+    output_elems = [output_box, progress_bar, loss_viewer, loss_popup_plot, swanlab_link]
 
     cmd_preview_btn.click(engine.runner.preview_train, input_elems, output_elems, concurrency_limit=None)
     start_btn.click(engine.runner.run_train, input_elems, output_elems)
@@ -476,5 +485,7 @@ def create_train_tab(engine: "Engine") -> dict[str, "Component"]:
         render_config_preview, [config_path], [config_preview], queue=False
     )
     config_path.input(render_config_preview, [config_path], [config_preview], queue=False)
+    loss_viewer.select(lambda: gr.Column(visible=True), outputs=[loss_popup], queue=False)
+    loss_popup_close.click(lambda: gr.Column(visible=False), outputs=[loss_popup], queue=False)
 
     return elem_dict

@@ -152,7 +152,9 @@ def get_trainer_info(lang: str, output_path: os.PathLike, do_train: bool) -> tup
             running_progress = gr.Slider(label=label, value=percentage, visible=True)
 
             if do_train and is_matplotlib_available():
-                running_info["loss_viewer"] = gr.Plot(gen_loss_plot(trainer_log))
+                loss_plot = gen_loss_plot(trainer_log)
+                running_info["loss_viewer"] = gr.Plot(loss_plot)
+                running_info["loss_popup_plot"] = gr.Plot(loss_plot)
 
     swanlab_config_path = os.path.join(output_path, SWANLAB_CONFIG)
     if os.path.isfile(swanlab_config_path):
