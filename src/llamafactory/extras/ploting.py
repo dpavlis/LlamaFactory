@@ -83,12 +83,52 @@ def gen_loss_plot(trainer_log: list[dict[str, Any]]) -> "matplotlib.figure.Figur
         eval_steps, eval_losses = _collect_series(trainer_log, "eval/loss")
 
     if train_losses:
-        ax.plot(train_steps, train_losses, color="#1f77b4", alpha=0.35, label="train (raw)")
-        ax.plot(train_steps, smooth(train_losses), color="#1f77b4", label="train (smoothed)")
+        if len(train_losses) == 1:
+            ax.plot(
+                train_steps,
+                train_losses,
+                color="#1f77b4",
+                marker="o",
+                markersize=7,
+                linestyle="None",
+                label="train (raw)",
+            )
+            ax.plot(
+                train_steps,
+                smooth(train_losses),
+                color="#1f77b4",
+                marker="o",
+                markersize=5,
+                linestyle="None",
+                label="train (smoothed)",
+            )
+        else:
+            ax.plot(train_steps, train_losses, color="#1f77b4", alpha=0.35, label="train (raw)")
+            ax.plot(train_steps, smooth(train_losses), color="#1f77b4", label="train (smoothed)")
 
     if eval_losses:
-        ax.plot(eval_steps, eval_losses, color="#ff7f0e", alpha=0.35, label="eval (raw)")
-        ax.plot(eval_steps, smooth(eval_losses), color="#ff7f0e", label="eval (smoothed)")
+        if len(eval_losses) == 1:
+            ax.plot(
+                eval_steps,
+                eval_losses,
+                color="#ff7f0e",
+                marker="o",
+                markersize=7,
+                linestyle="None",
+                label="eval (raw)",
+            )
+            ax.plot(
+                eval_steps,
+                smooth(eval_losses),
+                color="#ff7f0e",
+                marker="o",
+                markersize=5,
+                linestyle="None",
+                label="eval (smoothed)",
+            )
+        else:
+            ax.plot(eval_steps, eval_losses, color="#ff7f0e", alpha=0.35, label="eval (raw)")
+            ax.plot(eval_steps, smooth(eval_losses), color="#ff7f0e", label="eval (smoothed)")
 
     ax.legend()
     ax.set_xlabel("step")
