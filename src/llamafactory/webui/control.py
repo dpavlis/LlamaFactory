@@ -183,6 +183,9 @@ def list_checkpoints(model_name: str, finetuning_type: str) -> "gr.Dropdown":
                 ):
                     checkpoints.append(checkpoint)
 
+    if len(checkpoints) > 1:
+        checkpoints = sorted(checkpoints, reverse=True)
+
     if finetuning_type in PEFT_METHODS:
         return gr.Dropdown(value=[], choices=checkpoints, multiselect=True)
     else:
@@ -202,7 +205,7 @@ def list_config_paths(current_time: str) -> "gr.Dropdown":
                 config_files.append(file_name)
 
     if len(config_files) > 1:
-        config_files = config_files[:1] + sorted(config_files[1:], reverse=True)
+        config_files = sorted(config_files, reverse=True)
 
     return gr.Dropdown(choices=config_files)
 
@@ -283,6 +286,6 @@ def list_output_dirs(model_name: str | None, finetuning_type: str, current_time:
                     output_dirs.append(folder)
 
     if len(output_dirs) > 1:
-        output_dirs = output_dirs[:1] + sorted(output_dirs[1:], reverse=True)
+        output_dirs = sorted(output_dirs, reverse=True)
 
     return gr.Dropdown(choices=output_dirs)

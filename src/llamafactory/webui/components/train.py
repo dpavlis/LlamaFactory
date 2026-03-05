@@ -475,5 +475,6 @@ def create_train_tab(engine: "Engine") -> dict[str, "Component"]:
     config_path.change(list_config_paths, [current_time], [config_path], queue=False).then(
         render_config_preview, [config_path], [config_preview], queue=False
     )
+    config_path.input(render_config_preview, [config_path], [config_preview], queue=False)
 
     return elem_dict

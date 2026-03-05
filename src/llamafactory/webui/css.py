@@ -67,25 +67,51 @@ CSS = r"""
 
 .config-preview-container {
   position: relative;
+  overflow: visible;
+  z-index: 9998;
+}
+
+.config-preview-container .gradio-row,
+.config-preview-container .gradio-column,
+.config-preview-container .form {
+  overflow: visible !important;
+}
+
+.config-preview-container .block,
+.config-preview-container .wrap,
+.config-preview-container .form {
+  overflow: visible !important;
 }
 
 .config-preview {
-  display: none;
+  opacity: 0;
+  visibility: hidden;
   position: absolute;
-  top: 100%;
+  top: calc(100% + 6px);
   left: 0;
-  z-index: 50;
-  min-width: 320px;
-  max-width: 640px;
+  z-index: 9999;
+  min-width: 360px;
+  max-width: 720px;
   max-height: 480px;
   overflow: auto;
   padding: 10px;
   border: 1px solid #a6a6a6;
   background: var(--input-background-fill);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.12s ease-in-out;
+  transition-delay: 0.6s;
 }
 
-.config-preview-container:hover .config-preview {
-  display: block;
+.config-preview p,
+.config-preview li,
+.config-preview pre {
+  white-space: pre-wrap;
+}
+
+.config-preview-container:hover .config-preview,
+.config-preview-container:focus-within .config-preview {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0.6s;
 }
 """
