@@ -62,8 +62,8 @@ def create_eval_tab(engine: "Engine") -> dict[str, "Component"]:
 
     with gr.Row():
         cmd_preview_btn = gr.Button()
-        start_btn = gr.Button(variant="primary")
-        stop_btn = gr.Button()
+        start_btn = gr.Button(variant="primary", elem_classes="btn-start")
+        stop_btn = gr.Button(elem_classes="btn-stop")
         abort_btn = gr.Button(variant="stop")
 
     with gr.Row():

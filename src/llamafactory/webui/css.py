@@ -114,4 +114,16 @@ CSS = r"""
   visibility: visible;
   transition-delay: 0.6s;
 }
+
+.btn-start button {
+  background: #2e7d32 !important;
+  border-color: #2e7d32 !important;
+  color: white !important;
+}
+
+.btn-stop button {
+  background: #f57c00 !important;
+  border-color: #f57c00 !important;
+  color: white !important;
+}
 """
