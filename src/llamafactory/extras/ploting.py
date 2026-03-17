@@ -30,6 +30,8 @@ if is_matplotlib_available():
 
 logger = logging.get_logger(__name__)
 
+DEFAULT_LOSS_PLOT_DPI = 300
+
 
 def smooth(scalars: list[float]) -> list[float]:
     r"""EMA implementation according to TensorBoard."""
@@ -70,11 +72,39 @@ def _collect_series(trainer_log: list[dict[str, Any]], key: str) -> tuple[list[i
     return steps, values
 
 
+def _format_metric_value(value: float) -> str:
+    return f"{value:.4f}".rstrip("0").rstrip(".")
+
+
+def _annotate_latest_value(
+    ax: Any,
+    steps: list[int],
+    values: list[float],
+    prefix: str,
+    color: str,
+    y_offset: int,
+) -> None:
+    if not steps or not values:
+        return
+
+    ax.annotate(
+        f"{prefix}: {_format_metric_value(values[-1])}",
+        xy=(steps[-1], values[-1]),
+        xytext=(8, y_offset),
+        textcoords="offset points",
+        color=color,
+        fontsize=9,
+        ha="left",
+        va="bottom" if y_offset >= 0 else "top",
+    )
+
+
 def gen_loss_plot(trainer_log: list[dict[str, Any]]) -> "matplotlib.figure.Figure":
     r"""Plot loss curves in LlamaBoard."""
     plt.close("all")
     plt.switch_backend("agg")
-    fig = plt.figure()
+    # Keep the same default figure size but render more pixels for sharper popup zoom.
+    fig = plt.figure(dpi=int(os.getenv("LLAMABOARD_LOSS_PLOT_DPI", str(DEFAULT_LOSS_PLOT_DPI))))
     ax = fig.add_subplot(111)
 
     train_steps, train_losses = _collect_series(trainer_log, "loss")
@@ -130,6 +160,11 @@ def gen_loss_plot(trainer_log: list[dict[str, Any]]) -> "matplotlib.figure.Figur
             ax.plot(eval_steps, eval_losses, color="#ff7f0e", alpha=0.35, label="eval (raw)")
             ax.plot(eval_steps, smooth(eval_losses), color="#ff7f0e", label="eval (smoothed)")
 
+    _annotate_latest_value(ax, train_steps, train_losses, "train loss", "#1f77b4", 8)
+    _annotate_latest_value(ax, eval_steps, eval_losses, "eval loss", "#ff7f0e", -8)
+
+    ax.grid(True, which="major", linestyle="--", linewidth=0.6, alpha=0.35)
+    ax.set_axisbelow(True)
     ax.legend()
     ax.set_xlabel("step")
     ax.set_ylabel("loss")
@@ -156,10 +191,21 @@ def plot_loss(save_dictionary: str, keys: list[str] = ["loss"]) -> None:
         plt.figure()
         plt.plot(steps, metrics, color="#1f77b4", alpha=0.4, label="original")
         plt.plot(steps, smooth(metrics), color="#1f77b4", label="smoothed")
+        if steps and metrics:
+            plt.annotate(
+                f"{key.replace('_', ' ')}: {_format_metric_value(metrics[-1])}",
+                xy=(steps[-1], metrics[-1]),
+                xytext=(8, 8),
+                textcoords="offset points",
+                color="#1f77b4",
+                fontsize=9,
+                ha="left",
+                va="bottom",
+            )
         plt.title(f"training {key} of {save_dictionary}")
         plt.xlabel("step")
         plt.ylabel(key)
         plt.legend()
         figure_path = os.path.join(save_dictionary, "training_{}.png".format(key.replace("/", "_")))
-        plt.savefig(figure_path, format="png", dpi=100)
+        plt.savefig(figure_path, format="png", dpi=300)
         print("Figure saved at:", figure_path)
