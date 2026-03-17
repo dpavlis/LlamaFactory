@@ -90,12 +90,13 @@ def _annotate_latest_value(
     ax.annotate(
         f"{prefix}: {_format_metric_value(values[-1])}",
         xy=(steps[-1], values[-1]),
-        xytext=(8, y_offset),
+        xytext=(-8, y_offset),
         textcoords="offset points",
         color=color,
         fontsize=9,
-        ha="left",
+        ha="right",
         va="bottom" if y_offset >= 0 else "top",
+        annotation_clip=False,
     )
 
 
@@ -197,12 +198,13 @@ def plot_loss(save_dictionary: str, keys: list[str] = ["loss"]) -> None:
             plt.annotate(
                 f"{key.replace('_', ' ')}: {_format_metric_value(metrics[-1])}",
                 xy=(steps[-1], metrics[-1]),
-                xytext=(8, 8),
+                xytext=(-8, 8),
                 textcoords="offset points",
                 color="#1f77b4",
                 fontsize=9,
-                ha="left",
+                ha="right",
                 va="bottom",
+                annotation_clip=False,
             )
         plt.title(f"training {key} of {save_dictionary}")
         plt.xlabel("step")
