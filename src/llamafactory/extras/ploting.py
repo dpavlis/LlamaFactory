@@ -168,6 +168,8 @@ def gen_loss_plot(trainer_log: list[dict[str, Any]]) -> "matplotlib.figure.Figur
     ax.legend()
     ax.set_xlabel("step")
     ax.set_ylabel("loss")
+    fig.tight_layout()
+    fig.subplots_adjust(bottom=0.16)
     return fig
 
 
