@@ -26,6 +26,7 @@ from .packages import is_matplotlib_available
 if is_matplotlib_available():
     import matplotlib.figure
     import matplotlib.pyplot as plt
+    import matplotlib.ticker as ticker
 
 
 logger = logging.get_logger(__name__)
@@ -169,6 +170,7 @@ def gen_loss_plot(trainer_log: list[dict[str, Any]]) -> "matplotlib.figure.Figur
     ax.legend()
     ax.set_xlabel("step")
     ax.set_ylabel("loss")
+    ax.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
     fig.tight_layout()
     fig.subplots_adjust(bottom=0.16)
     return fig
@@ -209,6 +211,7 @@ def plot_loss(save_dictionary: str, keys: list[str] = ["loss"]) -> None:
         plt.title(f"training {key} of {save_dictionary}")
         plt.xlabel("step")
         plt.ylabel(key)
+        plt.gca().xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
         plt.legend()
         figure_path = os.path.join(save_dictionary, "training_{}.png".format(key.replace("/", "_")))
         plt.savefig(figure_path, format="png", dpi=300)
