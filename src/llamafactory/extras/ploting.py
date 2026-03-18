@@ -171,8 +171,7 @@ def gen_loss_plot(trainer_log: list[dict[str, Any]]) -> "matplotlib.figure.Figur
     ax.set_xlabel("step")
     ax.set_ylabel("loss")
     ax.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
-    fig.tight_layout()
-    fig.subplots_adjust(bottom=0.16)
+    fig.subplots_adjust(top=0.92, bottom=0.18, left=0.14, right=0.96)
     return fig
 
 
@@ -214,5 +213,5 @@ def plot_loss(save_dictionary: str, keys: list[str] = ["loss"]) -> None:
         plt.gca().xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
         plt.legend()
         figure_path = os.path.join(save_dictionary, "training_{}.png".format(key.replace("/", "_")))
-        plt.savefig(figure_path, format="png", dpi=300)
+        plt.savefig(figure_path, format="png", dpi=300, bbox_inches="tight")
         print("Figure saved at:", figure_path)
