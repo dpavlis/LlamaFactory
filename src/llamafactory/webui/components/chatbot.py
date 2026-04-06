@@ -119,12 +119,36 @@ def create_chat_box(
     )
     clear_btn.click(lambda: ([], []), outputs=[chatbot, messages])
     copy_btn.click(
-        lambda *_: None,
+        lambda msgs: msgs,
         inputs=[messages],
-        outputs=None,
+        outputs=[messages],
+        queue=False,
         js="""
-        (messages) => {
-            navigator.clipboard.writeText(JSON.stringify({ messages: messages }, null, 2));
+        async (messages) => {
+            const payload = JSON.stringify({ messages: messages || [] }, null, 2);
+            const fallbackCopy = (text) => {
+                const textarea = document.createElement("textarea");
+                textarea.value = text;
+                textarea.setAttribute("readonly", "");
+                textarea.style.position = "fixed";
+                textarea.style.opacity = "0";
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textarea);
+            };
+
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(payload);
+                } else {
+                    fallbackCopy(payload);
+                }
+            } catch {
+                fallbackCopy(payload);
+            }
+
+            return [messages];
         }
         """,
     )
