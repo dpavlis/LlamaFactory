@@ -89,6 +89,7 @@ def create_chat_box(
                 escape_html = gr.Checkbox(value=True)
                 enable_thinking = gr.Checkbox(value=True)
                 clear_btn = gr.Button()
+                copy_btn = gr.Button()
 
     tools.input(check_json_schema, inputs=[tools, engine.manager.get_elem_by_id("top.lang")])
 
@@ -117,6 +118,15 @@ def create_chat_box(
         [chatbot, messages],
     )
     clear_btn.click(lambda: ([], []), outputs=[chatbot, messages])
+    copy_btn.click(
+        None,
+        inputs=[messages],
+        js="""
+        (messages) => {
+            navigator.clipboard.writeText(JSON.stringify({ messages: messages }, null, 2));
+        }
+        """,
+    )
 
     return (
         chatbot,
@@ -139,5 +149,6 @@ def create_chat_box(
             escape_html=escape_html,
             enable_thinking=enable_thinking,
             clear_btn=clear_btn,
+            copy_btn=copy_btn,
         ),
     )

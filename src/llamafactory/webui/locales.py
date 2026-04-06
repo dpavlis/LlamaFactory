@@ -2810,6 +2810,23 @@ LOCALES = {
             "value": "履歴をクリア",
         },
     },
+    "copy_btn": {
+        "en": {
+            "value": "Copy all history",
+        },
+        "ru": {
+            "value": "Копировать все",
+        },
+        "zh": {
+            "value": "全部复制",
+        },
+        "ko": {
+            "value": "모두 복사",
+        },
+        "ja": {
+            "value": "すべてコピー",
+        },
+    },
     "export_size": {
         "en": {
             "label": "Max shard size (GB)",
