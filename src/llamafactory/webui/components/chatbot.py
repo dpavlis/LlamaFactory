@@ -46,6 +46,11 @@ def check_json_schema(text: str, lang: str) -> None:
         gr.Warning(ALERTS["err_json_schema"][lang])
 
 
+def copy_chat_history(chat_value):
+    r"""Stub function for copy-to-clipboard JS event."""
+    return None
+
+
 def create_chat_box(
     engine: "Engine", visible: bool = False
 ) -> tuple["Component", "Component", dict[str, "Component"]]:
@@ -119,16 +124,16 @@ def create_chat_box(
     )
     clear_btn.click(lambda: ([], []), outputs=[chatbot, messages])
     copy_btn.click(
-        lambda chat: chat,
+        copy_chat_history,
         inputs=[chatbot],
-        outputs=[chatbot],
-        queue=False,
+        outputs=[],
         js="""
-        async (chat) => {
+        (chat) => {
             const normalizedMessages = (chat || [])
                 .filter((item) => item && (item.role === "user" || item.role === "assistant"))
                 .map((item) => ({ role: item.role, content: typeof item.content === "string" ? item.content : JSON.stringify(item.content) }));
             const payload = JSON.stringify({ messages: normalizedMessages }, null, 2);
+            
             const fallbackCopy = (text) => {
                 const textarea = document.createElement("textarea");
                 textarea.value = text;
@@ -143,15 +148,13 @@ def create_chat_box(
 
             try {
                 if (navigator.clipboard && window.isSecureContext) {
-                    await navigator.clipboard.writeText(payload);
+                    navigator.clipboard.writeText(payload);
                 } else {
                     fallbackCopy(payload);
                 }
             } catch {
                 fallbackCopy(payload);
             }
-
-            return [chat];
         }
         """,
     )
