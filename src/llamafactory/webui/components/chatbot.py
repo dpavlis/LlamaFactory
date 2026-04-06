@@ -119,8 +119,9 @@ def create_chat_box(
     )
     clear_btn.click(lambda: ([], []), outputs=[chatbot, messages])
     copy_btn.click(
-        None,
+        lambda *_: None,
         inputs=[messages],
+        outputs=None,
         js="""
         (messages) => {
             navigator.clipboard.writeText(JSON.stringify({ messages: messages }, null, 2));
