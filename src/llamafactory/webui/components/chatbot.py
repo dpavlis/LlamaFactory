@@ -119,13 +119,16 @@ def create_chat_box(
     )
     clear_btn.click(lambda: ([], []), outputs=[chatbot, messages])
     copy_btn.click(
-        lambda msgs: msgs,
-        inputs=[messages],
-        outputs=[messages],
+        lambda chat: chat,
+        inputs=[chatbot],
+        outputs=[chatbot],
         queue=False,
         js="""
-        async (messages) => {
-            const payload = JSON.stringify({ messages: messages || [] }, null, 2);
+        async (chat) => {
+            const normalizedMessages = (chat || [])
+                .filter((item) => item && (item.role === "user" || item.role === "assistant"))
+                .map((item) => ({ role: item.role, content: typeof item.content === "string" ? item.content : JSON.stringify(item.content) }));
+            const payload = JSON.stringify({ messages: normalizedMessages }, null, 2);
             const fallbackCopy = (text) => {
                 const textarea = document.createElement("textarea");
                 textarea.value = text;
@@ -148,7 +151,7 @@ def create_chat_box(
                 fallbackCopy(payload);
             }
 
-            return [messages];
+            return [chat];
         }
         """,
     )
