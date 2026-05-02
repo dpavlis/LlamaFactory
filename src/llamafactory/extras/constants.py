@@ -69,11 +69,27 @@ MCA_SUPPORTED_MODELS = {
     "qwen3",
     "qwen3_moe",
     "qwen3_next",
+    "qwen3_5",
+    "qwen3_5_moe",
 }
 
 METHODS = ["full", "freeze", "lora", "oft"]
 
 MOD_SUPPORTED_MODELS = {"bloom", "falcon", "gemma", "llama", "mistral", "mixtral", "phi", "starcoder2"}
+
+MROPE_MODELS = {
+    "glm4v",
+    "glm_ocr",
+    "Keye",
+    "qwen2_vl",
+    "qwen2_5_vl",
+    "qwen2_5_omni_thinker",
+    "qwen3_omni_moe_thinker",
+    "qwen3_vl",
+    "qwen3_vl_moe",
+    "qwen3_5",
+    "qwen3_5_moe",
+}
 
 MULTIMODAL_SUPPORTED_MODELS = set()
 
@@ -123,7 +139,6 @@ class EngineName(StrEnum):
     HF = "huggingface"
     VLLM = "vllm"
     SGLANG = "sglang"
-    KT = "ktransformers"
 
 
 class DownloadSource(StrEnum):
@@ -851,6 +866,34 @@ register_model_group(
 
 register_model_group(
     models={
+        "Gemma-4-26B-A4B-Thinking": {
+            DownloadSource.DEFAULT: "google/gemma-4-26B-A4B-it",
+        },
+        "Gemma-4-31B-Thinking": {
+            DownloadSource.DEFAULT: "google/gemma-4-31B-it",
+        },
+    },
+    template="gemma4",
+    multimodal=True,
+)
+
+
+register_model_group(
+    models={
+        "Gemma-4-E2B-Thinking": {
+            DownloadSource.DEFAULT: "google/gemma-4-E2B-it",
+        },
+        "Gemma-4-E4B-Thinking": {
+            DownloadSource.DEFAULT: "google/gemma-4-E4B-it",
+        },
+    },
+    template="gemma4n",
+    multimodal=True,
+)
+
+
+register_model_group(
+    models={
         "GLM-4-9B": {
             DownloadSource.DEFAULT: "zai-org/glm-4-9b",
             DownloadSource.MODELSCOPE: "ZhipuAI/glm-4-9b",
@@ -1210,6 +1253,17 @@ register_model_group(
         },
     },
     template="hunyuan_small",
+)
+
+
+register_model_group(
+    models={
+        "Hy3-Preview": {
+            DownloadSource.DEFAULT: "tencent/Hy3-preview",
+            DownloadSource.MODELSCOPE: "tencent/Hy3-preview",
+        },
+    },
+    template="hy3",
 )
 
 
