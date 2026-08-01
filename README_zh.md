@@ -19,7 +19,21 @@
 [![Open in Studios](https://img.shields.io/badge/ModelScope-Open%20in%20Studios-blue)](https://modelscope.cn/studios/hiyouga/LLaMA-Board)
 [![Open in Novita](https://img.shields.io/badge/Novita-Deploy%20Template-blue)](https://novita.ai/templates-library/105981?sharer=88115474-394e-4bda-968e-b88e123d0c47)
 
-### 获得[亚马逊](https://aws.amazon.com/cn/blogs/china/a-one-stop-code-free-model-fine-tuning-deployment-platform-based-on-sagemaker-and-llama-factory/)、[英伟达](https://developer.nvidia.cn/rtx/ai-toolkit)、[阿里云](https://help.aliyun.com/zh/pai/use-cases/fine-tune-a-llama-3-model-with-llama-factory)等的应用。
+### 获得[亚马逊](https://aws.amazon.com/cn/blogs/china/a-one-stop-code-free-model-fine-tuning-deployment-platform-based-on-sagemaker-and-llama-factory/)、[英伟达](https://build.nvidia.com/spark/llama-factory)、[阿里云](https://help.aliyun.com/zh/pai/use-cases/fine-tune-a-llama-3-model-with-llama-factory)等的应用。
+
+----
+
+<div align="center" markdown="1">
+
+### 欢迎关注我们全新的开源项目——<br>🐧 [PenguinHarness](https://github.com/Prism-Shadow/penguin-harness)：只需 0.2 元的 Token，即可自动构建 Agent 的桌面级 Agent！
+
+点击关注项目：https://github.com/Prism-Shadow/penguin-harness
+
+</div>
+
+https://github.com/user-attachments/assets/604eb626-0a5d-4a62-87e3-14ebade1cd5f
+
+----
 
 <div align="center" markdown="1">
 
@@ -32,7 +46,7 @@
 
 ### 使用零代码[命令行](#快速开始)与 [Web UI](#llama-board-可视化微调由-gradio-驱动) 轻松微调百余种大模型
 
-![GitHub Trend](https://trendshift.io/api/badge/repositories/4535)
+![GitHub Trend](https://trendshift.io/api/badge/repositories/17371)
 
 </div>
 
@@ -50,6 +64,7 @@ https://github.com/user-attachments/assets/43b700c6-a178-41db-b1f8-8190a5d3fcfc
 开始云端训练：
 - **Colab（免费）**：https://colab.research.google.com/drive/1d5KQtbemerlSDSxZIfAaWXhKr30QypiK?usp=sharing
 - **PAI-DSW（免费试用）**：https://gallery.pai-ml.com/#/preview/deepLearning/nlp/llama_factory
+- **AMD GPU Cloud (免费试用)**: https://github.com/AMD-AIM/AMD_Developers_Notebooks/blob/main/zh/AMD_developer_LLaMAFactory_note_zh.md
 
 阅读技术文档：
 - **入门教程**：https://zhuanlan.zhihu.com/p/695287607
@@ -301,8 +316,9 @@ https://github.com/user-attachments/assets/43b700c6-a178-41db-b1f8-8190a5d3fcfc
 | [LLaVA-NeXT](https://huggingface.co/llava-hf)                     | 7B/8B/13B/34B/72B/110B           | llava_next           |
 | [LLaVA-NeXT-Video](https://huggingface.co/llava-hf)               | 7B/34B                           | llava_next_video     |
 | [MiMo](https://huggingface.co/XiaomiMiMo)                         | 7B/309B                          | mimo/mimo_v2         |
-| [MiniCPM 4](https://huggingface.co/openbmb)                       | 0.5B/8B                          | cpm4                 |
+| [MiniCPM 4/5](https://huggingface.co/openbmb)                     | 0.5B/1B/8B                       | cpm4/empty           |
 | [MiniCPM-o/MiniCPM-V 4.5](https://huggingface.co/openbmb)         | 8B/9B                            | minicpm_o/minicpm_v  |
+| [MiniCPM-V 4.6](https://huggingface.co/openbmb)                   | 3B/8B                            | minicpm_v_4_6        |
 | [MiniMax-M1/MiniMax-M2](https://huggingface.co/MiniMaxAI/models)  | 229B/456B                        | minimax1/minimax2    |
 | [Ministral 3](https://huggingface.co/mistralai)                   | 3B/8B/14B                        | ministral3           |
 | [Mistral/Mixtral](https://huggingface.co/mistralai)               | 7B/8x7B/8x22B                    | mistral              |
@@ -558,7 +574,24 @@ python -c "import torch; print(torch.cuda.is_available())"
 
 #### 安装 BitsAndBytes
 
-如果要在 Windows 平台上开启量化 LoRA（QLoRA），需要安装预编译的 `bitsandbytes` 库, 支持 CUDA 11.1 到 12.2, 请根据您的 CUDA 版本情况选择适合的[发布版本](https://github.com/jllllll/bitsandbytes-windows-webui/releases/tag/wheels)。
+如果要在 Windows 平台上开启量化 LoRA（QLoRA），需要安装 bitsandbytes。
+
+对于大多数用户，建议优先使用官方发布的最新版本：
+
+```bash
+pip install bitsandbytes
+```
+
+如果使用 uv 管理虚拟环境，建议在安装好 GPU 版本 PyTorch 之后，再执行：
+
+```bash
+uv pip install bitsandbytes --no-deps
+```
+
+> [!IMPORTANT]
+> 安装 bitsandbytes 时，请注意 CUDA Toolkit 版本。bitsandbytes 的官方发布包是按不同 CUDA 版本分别构建的，Windows x86-64 目前提供了面向 CUDA 11.8–12.6 和 CUDA 12.8–12.9 的不同构建；其中支持 RTX 50 系列（如 RTX 5060 Ti，sm_120）的构建对应 CUDA 12.8–12.9。
+
+若当前环境的 CUDA 版本较旧，或者需要兼容较老的 Windows / PyTorch 组合，可以使用第三方预编译版本：
 
 ```bash
 pip install https://github.com/jllllll/bitsandbytes-windows-webui/releases/download/wheels/bitsandbytes-0.41.2.post2-py3-none-win_amd64.whl
@@ -572,18 +605,22 @@ pip install https://github.com/jllllll/bitsandbytes-windows-webui/releases/downl
 
 <details><summary>昇腾 NPU 用户指南</summary>
 
-在昇腾 NPU 设备上安装 LLaMA Factory 时，请升级 Python 到 3.10 及以上，并需要指定额外依赖项，使用 `pip install -r requirements/npu.txt` 命令安装。此外，还需要安装 **Ascend CANN Toolkit 与 Kernels**，安装方法请参考[安装教程](https://llamafactory.readthedocs.io/zh-cn/latest/advanced/npu_installation.html)。
+在昇腾 NPU 设备上安装 LLaMA Factory 时，请升级 Python 到 3.10 及以上，并需要指定额外依赖项，使用 `pip install -r requirements/npu.txt` 命令安装。此外，还需要安装 **Ascend CANN Toolkit 与 Kernels**，安装方法请参考[安装教程](https://llamafactory.readthedocs.io/zh-cn/latest/multibackend/npu/npu_installation.html)。
 
 您可以直接下载预安装的最新docker镜像：
 
 ```bash
 # Docker Hub
-docker pull hiyouga/llamafactory:latest-npu-a2
-docker pull hiyouga/llamafactory:latest-npu-a3
+docker pull hiyouga/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A2-ubuntu-py3.11
+docker pull hiyouga/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A3-ubuntu-py3.11
+docker pull hiyouga/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A2-openeuler-py3.11
+docker pull hiyouga/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A3-openeuler-py3.11
 
 # quay.io
-docker pull quay.io/ascend/llamafactory:latest-npu-a2
-docker pull quay.io/ascend/llamafactory:latest-npu-a3
+docker pull quay.io/ascend/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A2-ubuntu-py3.11
+docker pull quay.io/ascend/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A3-ubuntu-py3.11
+docker pull quay.io/ascend/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A2-openeuler-py3.11
+docker pull quay.io/ascend/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A3-openeuler-py3.11
 ```
 
 #### 安装 BitsAndBytes
@@ -664,12 +701,28 @@ docker compose up -d
 docker compose exec llamafactory bash
 ```
 
-昇腾 NPU 用户：
+昇腾 NPU 用户（默认使用 A2 和 Ubuntu）：
 
 ```bash
 cd docker/docker-npu/
-docker compose up -d
-docker compose exec llamafactory bash
+docker compose up -d llamafactory-a2-ubuntu
+docker compose exec llamafactory-a2-ubuntu bash
+```
+
+其他 NPU 组合可以通过对应的 profile 和服务启动：
+
+```bash
+# A3 + Ubuntu
+docker compose --profile a3 up -d llamafactory-a3-ubuntu
+docker compose exec llamafactory-a3-ubuntu bash
+
+# A2 + openEuler
+docker compose --profile openeuler up -d llamafactory-a2-openeuler
+docker compose exec llamafactory-a2-openeuler bash
+
+# A3 + openEuler
+docker compose --profile a3-openeuler up -d llamafactory-a3-openeuler
+docker compose exec llamafactory-a3-openeuler bash
 ```
 
 AMD ROCm 用户：
@@ -944,7 +997,3 @@ swanlab_run_name: test_run # 可选
 ## 致谢
 
 本项目受益于 [PEFT](https://github.com/huggingface/peft)、[TRL](https://github.com/huggingface/trl)、[QLoRA](https://github.com/artidoro/qlora) 和 [FastChat](https://github.com/lm-sys/FastChat)，感谢以上诸位作者的付出。
-
-## Star History
-
-![Star History Chart](https://api.star-history.com/svg?repos=hiyouga/LLaMA-Factory&type=Date)

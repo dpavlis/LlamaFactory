@@ -278,7 +278,9 @@ class HyperParallelTrainer(CustomSeq2SeqTrainer):
         )
         logical_batches = len(batch_sampler) // self._cp_size
         dp_size = max(1, get_platform().get_world_size() // self._cp_size)
-        logical_length = logical_batches // dp_size if self.args.dataloader_drop_last else _ceil_div(logical_batches, dp_size)
+        logical_length = (
+            logical_batches // dp_size if self.args.dataloader_drop_last else _ceil_div(logical_batches, dp_size)
+        )
 
         dataloader_params = {
             "batch_sampler": batch_sampler,
@@ -359,7 +361,12 @@ class HyperParallelTrainer(CustomSeq2SeqTrainer):
             loss = loss.mean()
 
         if not getattr(self, "model_accepts_loss_kwargs", False) and getattr(self, "compute_loss_func", None) is None:
-            loss = loss / self.args.gradient_accumulation_steps
+            accumulation_steps = getattr(
+                self,
+                "current_gradient_accumulation_steps",
+                self.args.gradient_accumulation_steps,
+            )
+            loss = loss / accumulation_steps
 
         self.accelerator.backward(loss)
 

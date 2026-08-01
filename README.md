@@ -19,7 +19,21 @@
 [![Open in Studios](https://img.shields.io/badge/ModelScope-Open%20in%20Studios-blue)](https://modelscope.cn/studios/hiyouga/LLaMA-Board)
 [![Open in Novita](https://img.shields.io/badge/Novita-Deploy%20Template-blue)](https://novita.ai/templates-library/105981?sharer=88115474-394e-4bda-968e-b88e123d0c47)
 
-### Used by [Amazon](https://aws.amazon.com/cn/blogs/machine-learning/how-apoidea-group-enhances-visual-information-extraction-from-banking-documents-with-multimodal-models-using-llama-factory-on-amazon-sagemaker-hyperpod/), [NVIDIA](https://developer.nvidia.com/rtx/ai-toolkit), [Aliyun](https://help.aliyun.com/zh/pai/use-cases/fine-tune-a-llama-3-model-with-llama-factory), etc.
+### Used by [Amazon](https://aws.amazon.com/cn/blogs/machine-learning/how-apoidea-group-enhances-visual-information-extraction-from-banking-documents-with-multimodal-models-using-llama-factory-on-amazon-sagemaker-hyperpod/), [NVIDIA](https://build.nvidia.com/spark/llama-factory), [Aliyun](https://help.aliyun.com/zh/pai/use-cases/fine-tune-a-llama-3-model-with-llama-factory), etc.
+
+----
+
+<div align="center" markdown="1">
+
+### Check our new open-source project —<br>🐧 [PenguinHarness](https://github.com/Prism-Shadow/penguin-harness): Your desktop agent that automatically builds agents for just $0.02 of tokens!
+
+Follow our project: https://github.com/Prism-Shadow/penguin-harness
+
+</div>
+
+https://github.com/user-attachments/assets/9b7033e8-f08a-4c3f-bd33-547896664e6e
+
+----
 
 <div align="center" markdown="1">
 
@@ -32,7 +46,7 @@
 
 ### Easily fine-tune 100+ large language models with zero-code [CLI](#quickstart) and [Web UI](#fine-tuning-with-llama-board-gui-powered-by-gradio)
 
-![GitHub Trend](https://trendshift.io/api/badge/repositories/4535)
+![GitHub Trend](https://trendshift.io/api/badge/repositories/17371)
 
 </div>
 
@@ -50,6 +64,7 @@ Start local training:
 Start cloud training:
 - **Colab (free)**: https://colab.research.google.com/drive/1eRTPn37ltBbYsISy9Aw2NuI2Aq5CQrD9?usp=sharing
 - **PAI-DSW (free trial)**: https://gallery.pai-ml.com/#/preview/deepLearning/nlp/llama_factory
+- **AMD GPU Cloud (free credits)**: https://github.com/AMD-AIM/AMD_Developers_Notebooks/blob/main/en/AMD_developer_LLaMAFactory_note_en.md
 
 Read technical notes:
 - **Documentation (WIP)**: https://llamafactory.readthedocs.io/en/latest/
@@ -300,8 +315,9 @@ Read technical notes:
 | [LLaVA-NeXT](https://huggingface.co/llava-hf)                     | 7B/8B/13B/34B/72B/110B           | llava_next           |
 | [LLaVA-NeXT-Video](https://huggingface.co/llava-hf)               | 7B/34B                           | llava_next_video     |
 | [MiMo](https://huggingface.co/XiaomiMiMo)                         | 7B/309B                          | mimo/mimo_v2         |
-| [MiniCPM 4](https://huggingface.co/openbmb)                       | 0.5B/8B                          | cpm4                 |
+| [MiniCPM 4/5](https://huggingface.co/openbmb)                     | 0.5B/1B/8B                       | cpm4/empty           |
 | [MiniCPM-o/MiniCPM-V 4.5](https://huggingface.co/openbmb)         | 8B/9B                            | minicpm_o/minicpm_v  |
+| [MiniCPM-V 4.6](https://huggingface.co/openbmb)                   | 3B/8B                            | minicpm_v_4_6        |
 | [MiniMax-M1/MiniMax-M2](https://huggingface.co/MiniMaxAI/models)  | 229B/456B                        | minimax1/minimax2    |
 | [Ministral 3](https://huggingface.co/mistralai)                   | 3B/8B/14B                        | ministral3           |
 | [Mistral/Mixtral](https://huggingface.co/mistralai)               | 7B/8x7B/8x22B                    | mistral              |
@@ -557,7 +573,24 @@ Try `dataloader_num_workers: 0` if you encounter `Can't pickle local object` err
 
 #### Install BitsAndBytes
 
-If you want to enable the quantized LoRA (QLoRA) on the Windows platform, you need to install a pre-built version of `bitsandbytes` library, which supports CUDA 11.1 to 12.2, please select the appropriate [release version](https://github.com/jllllll/bitsandbytes-windows-webui/releases/tag/wheels) based on your CUDA version.
+To enable Quantized LoRA (QLoRA) on Windows, you need to install bitsandbytes.
+
+For most users, it is recommended to install the latest official release:
+
+```bash
+pip install bitsandbytes
+```
+
+If you are using uv to manage your virtual environment, it is recommended to install bitsandbytes after installing the GPU-enabled version of PyTorch:
+
+```bash
+uv pip install bitsandbytes --no-deps
+```
+
+[!IMPORTANT]
+Pay attention to the CUDA Toolkit version when installing bitsandbytes. Official bitsandbytes releases are built for specific CUDA Toolkit versions. On Windows x86-64, separate builds are currently provided for CUDA 11.8–12.6 and CUDA 12.8–12.9. Support for NVIDIA RTX 50 Series GPUs (e.g., RTX 5060 Ti, sm_120) requires the CUDA 12.8–12.9 builds.
+
+If your environment uses an older CUDA version, or you need compatibility with older Windows / PyTorch combinations, you can install the third-party precompiled Windows wheel:
 
 ```bash
 pip install https://github.com/jllllll/bitsandbytes-windows-webui/releases/download/wheels/bitsandbytes-0.41.2.post2-py3-none-win_amd64.whl
@@ -571,19 +604,23 @@ To enable FlashAttention-2 on the Windows platform, please use the script from [
 
 <details><summary>For Ascend NPU users</summary>
 
-To install LLaMA Factory on Ascend NPU devices, please upgrade Python to version 3.10 or higher: `pip install -r requirements/npu.txt`. Additionally, you need to install the **Ascend CANN Toolkit and Kernels**. Please follow the [installation tutorial](https://llamafactory.readthedocs.io/en/latest/advanced/npu_installation.html).
+To install LLaMA Factory on Ascend NPU devices, please upgrade Python to version 3.10 or higher: `pip install -r requirements/npu.txt`. Additionally, you need to install the **Ascend CANN Toolkit and Kernels**. Please follow the [installation tutorial](https://llamafactory.readthedocs.io/en/latest/multibackend/npu/npu_installation.html).
 
 
 You can also download the pre-built Docker images:
 
 ```bash
 # Docker Hub
-docker pull hiyouga/llamafactory:latest-npu-a2
-docker pull hiyouga/llamafactory:latest-npu-a3
+docker pull hiyouga/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A2-ubuntu-py3.11
+docker pull hiyouga/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A3-ubuntu-py3.11
+docker pull hiyouga/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A2-openeuler-py3.11
+docker pull hiyouga/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A3-openeuler-py3.11
 
 # quay.io
-docker pull quay.io/ascend/llamafactory:latest-npu-a2
-docker pull quay.io/ascend/llamafactory:latest-npu-a3
+docker pull quay.io/ascend/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A2-ubuntu-py3.11
+docker pull quay.io/ascend/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A3-ubuntu-py3.11
+docker pull quay.io/ascend/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A2-openeuler-py3.11
+docker pull quay.io/ascend/llamafactory:latest-cann9.0.0-torch_npu2.7.1-A3-openeuler-py3.11
 ```
 
 #### Install BitsAndBytes
@@ -664,12 +701,28 @@ docker compose up -d
 docker compose exec llamafactory bash
 ```
 
-For Ascend NPU users:
+For Ascend NPU users (A2 with Ubuntu by default):
 
 ```bash
 cd docker/docker-npu/
-docker compose up -d
-docker compose exec llamafactory bash
+docker compose up -d llamafactory-a2-ubuntu
+docker compose exec llamafactory-a2-ubuntu bash
+```
+
+Other NPU variants can be started with their corresponding profiles and services:
+
+```bash
+# A3 with Ubuntu
+docker compose --profile a3 up -d llamafactory-a3-ubuntu
+docker compose exec llamafactory-a3-ubuntu bash
+
+# A2 with openEuler
+docker compose --profile openeuler up -d llamafactory-a2-openeuler
+docker compose exec llamafactory-a2-openeuler bash
+
+# A3 with openEuler
+docker compose --profile a3-openeuler up -d llamafactory-a3-openeuler
+docker compose exec llamafactory-a3-openeuler bash
 ```
 
 For AMD ROCm users:
@@ -942,7 +995,3 @@ If this work is helpful, please kindly cite as:
 ## Acknowledgement
 
 This repo benefits from [PEFT](https://github.com/huggingface/peft), [TRL](https://github.com/huggingface/trl), [QLoRA](https://github.com/artidoro/qlora) and [FastChat](https://github.com/lm-sys/FastChat). Thanks for their wonderful works.
-
-## Star History
-
-![Star History Chart](https://api.star-history.com/svg?repos=hiyouga/LLaMA-Factory&type=Date)

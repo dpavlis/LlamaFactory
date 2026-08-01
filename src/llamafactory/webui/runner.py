@@ -52,6 +52,13 @@ if TYPE_CHECKING:
     from .manager import Manager
 
 
+def _parse_seed(value: Any, default: int = 42) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
 class Runner:
     r"""A class to manage the running status of the trainers."""
 
@@ -159,6 +166,7 @@ class Runner:
             learning_rate=float(get("train.learning_rate")),
             num_train_epochs=float(get("train.num_train_epochs")),
             max_samples=int(get("train.max_samples")),
+            seed=_parse_seed(get("train.train_seed")),
             per_device_train_batch_size=get("train.batch_size"),
             gradient_accumulation_steps=get("train.gradient_accumulation_steps"),
             lr_scheduler_type=get("train.lr_scheduler_type"),
@@ -328,6 +336,7 @@ class Runner:
             max_new_tokens=get("eval.max_new_tokens"),
             top_p=get("eval.top_p"),
             temperature=get("eval.temperature"),
+            seed=_parse_seed(get("eval.eval_seed")),
             output_dir=get_save_dir(model_name, finetuning_type, get("eval.output_dir")),
             trust_remote_code=True,
             ddp_timeout=180000000,
